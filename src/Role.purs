@@ -1,30 +1,23 @@
 module Role
-  ( Role
-  , sorter
-  , lpad
+  ( Role(..)
+  , CharacterType(..)
   , allroles
   )
   where
 
-import Data.Array (replicate)
-import Data.Array.Extra (sortOn)
-import Data.Either(Either(..), fromRight)
-import Data.Maybe(Maybe(..))
-import Data.String as Str
-import Data.String.CodeUnits (fromCharArray)
-import Data.Tuple (Tuple(..), fst, snd)
-import Debug
-import Foreign (MultipleErrors)
-import Parsing (Parser(..), runParser)
 import Prelude
-import SortOrder (SortOrder(..), getSortOrder)
-import Yoga.JSON (readJSON)
+
+import Data.Either (fromRight)
+import Data.Maybe (Maybe)
+import Data.String as Str
+import Foreign (ForeignError(..), fail)
+import Yoga.JSON (class ReadForeign, class WriteForeign, readImpl, readJSON, writeImpl)
 
 type Role = {
     id :: String,
     name :: String,
     edition :: String,
-    team :: String,
+    team :: CharacterType,
     firstNightReminder :: String,
     otherNightReminder :: String,
     reminders :: Array String,
@@ -33,10 +26,35 @@ type Role = {
     ability :: String
 }
 
-lpad s i = s <> fromCharArray (replicate (i - Str.length s) ' ')
+data CharacterType = Townsfolk | Outsider | Minion | Demon | Traveller
 
-sorter :: Array Role -> Array Role
-sorter = sortOn getSortOrder
+derive instance eqCharacterType :: Eq CharacterType
+derive instance ordCharacterType :: Ord CharacterType
+instance showCharacterType :: Show CharacterType where
+  show Townsfolk = "Townsfolk"
+  show Outsider = "Outsider"
+  show Minion = "Minion"
+  show Demon = "Demon"
+  show Traveller = "Traveler"
+
+instance ReadForeign CharacterType where
+  readImpl json = do
+    str :: String <- readImpl json
+    case Str.toLower str of
+      "townsfolk" -> pure Townsfolk
+      "outsider" -> pure Outsider
+      "minion" -> pure Minion
+      "demon" -> pure Demon
+      "traveller" -> pure Traveller
+      _ -> fail $ ForeignError $ "No parse (CharacterType): " <> str
+
+instance WriteForeign CharacterType where
+  writeImpl = writeImpl <<< case _ of
+    Townsfolk -> "townsfolk"
+    Outsider -> "outsider"
+    Minion -> "minion"
+    Demon -> "demon"
+    Traveller -> "traveller"
 
 allroles :: Array Role
 allroles = fromRight [] (readJSON allrolesRaw)

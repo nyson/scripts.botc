@@ -12,15 +12,20 @@ to generate this file without the comments in this block.
 -}
 { name = "my-project"
 , dependencies =
-  [ "arrays-extra"
+  [ "arrays"
+  , "arrays-extra"
   , "console"
   , "debug"
   , "effect"
+  , "either"
   , "foldable-traversable"
   , "foreign"
   , "lists"
+  , "maybe"
   , "parsing"
   , "prelude"
+  , "strings"
+  , "tuples"
   , "yoga-json"
   ]
 , packages = ./packages.dhall

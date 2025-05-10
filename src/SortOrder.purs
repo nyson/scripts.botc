@@ -1,28 +1,28 @@
 module SortOrder
   ( SortOrder(..)
   , AbilityType(..)
-  , AbilityLength(..)
-  , NameLength(..)
   , AbilityText(..)
-  , Alignment(..)
-  , CharacterType(..)
-  , Condition(..)
-  , Object(..)
+  , NameLength(..)
+  , AbilityLength(..)
   , Phase(..)
   , Verb(..)
+  , Condition(..)
+  , Object(..)
+  , Alignment(..)
+  , sorted
   , getSortOrder
   )
   where
 
 import Prelude
 
-import Parsing(Parser(..), runParser)
-import Parsing.Combinators (choice)
-import Parsing.String (string, char, anyChar)
-import Data.Either (Either(..), fromRight)
-import Data.Tuple (Tuple(..))
-import Data.Array (many, length)
+import Data.Array.Extra (sortOn)
+import Data.Either (Either(..))
 import Data.String as Str
+import Parsing (Parser, runParser)
+import Parsing.Combinators (choice)
+import Parsing.String (string)
+import Role (CharacterType(..), Role)
 
 data Alignment = Good | Evil
 
@@ -31,18 +31,6 @@ derive instance ordAlignment :: Ord Alignment
 instance showAlignment :: Show Alignment where
   show Good = "Good"
   show Evil = "Evil"
-
-data CharacterType = Townsfolk | Outsider | Minion | Demon | Traveler | UnknownTeam
-
-derive instance eqCharacterType :: Eq CharacterType
-derive instance ordCharacterType :: Ord CharacterType
-instance showCharacterType :: Show CharacterType where
-  show Townsfolk = "Townsfolk"
-  show Outsider = "Outsider"
-  show Minion = "Minion"
-  show Demon = "Demon"
-  show Traveler = "Traveler"
-  show UnknownTeam = "UnknownTeam"
 
 
 data Phase
@@ -53,7 +41,6 @@ data Phase
     | FirstNight
     | FirstDay
     | FirstTime
-    | AnyPhase
 
 derive instance eqPhase :: Eq Phase
 derive instance ordPhase :: Ord Phase
@@ -65,7 +52,6 @@ instance showPhase :: Show Phase where
   show FirstNight = "FirstNight"
   show FirstDay = "FirstDay"
   show FirstTime = "FirstTime"
-  show AnyPhase = "AnyPhase"
 
 data Verb
     = Think
@@ -181,30 +167,18 @@ instance showAbilityType :: Show AbilityType where
   show (References o) = "References " <> show o
   show (Uncategorized) = "Uncategorized"
 
-getSortOrder :: forall r. {name :: String, ability :: String, team :: String | r} -> SortOrder
+getSortOrder :: forall r. {name :: String, ability :: String, team :: CharacterType | r} -> SortOrder
 getSortOrder {name, ability, team}
   = SortOrder
-    (parsedTeam team)
+    team
     (parsedAbilityType ability)
     (AbilityLength $ Str.length ability)
     (NameLength $ Str.length name)
   where
-    parsedTeam :: String -> CharacterType
-    parsedTeam s = fromRight UnknownTeam (flip runParser parseCharacterType s)
-
     parsedAbilityType :: String -> AbilityType
     parsedAbilityType s = case runParser s parseAbilityType of
-      Left err -> Uncategorized
+      Left _ -> Uncategorized
       Right result -> result
-
-getAbilityType :: String -> Tuple AbilityType Int
-getAbilityType str = Tuple (parsed str) (Str.length str)
-  where 
-    parsed :: String -> AbilityType
-    parsed s = case runParser s parseAbilityType of
-      Left err -> Uncategorized
-      Right result -> result
-
 
 parseAbilityType :: Parser String AbilityType
 parseAbilityType = choice 
@@ -230,10 +204,7 @@ parseEach = string "Each " *> (Each <$> parsePhase)
 
 parseOncePerGame :: Parser String AbilityType
 parseOncePerGame = prefixP *> (OncePerGame <$> parsePhase) 
-    where prefixP = choice 
-                    [ string "Once per game, at "
-                    , string "Once per game, during "
-                    ]
+  where prefixP = string "Once per game " *> choice (map string ["at ", "during "]) 
 
 parseOnYour :: Parser String AbilityType
 parseOnYour = string "On your " *> (OnYour <$> parsePhase)
@@ -277,10 +248,10 @@ parseCharacterType = choice
     , string "Minion" *> pure Minion
     , string "Demon" *> pure Demon
     , string "demon" *> pure Demon
-    , string "Traveler" *> pure Traveler
-    , string "traveler" *> pure Traveler
-    , string "Traveller" *> pure Traveler
-    , string "traveller" *> pure Traveler
+    , string "Traveler" *> pure Traveller
+    , string "traveler" *> pure Traveller
+    , string "Traveller" *> pure Traveller
+    , string "traveller" *> pure Traveller
     ]
 
 parseAlignment :: Parser String Alignment
@@ -326,8 +297,9 @@ parsePhase = choice
     , FirstNight <$ string "1st night"
     , FirstDay <$ string "1st day"
     , FirstTime <$ string "1st time"
-    , pure AnyPhase
     ]
 
 newtype AbilityText = AbilityText String
 
+sorted :: Array Role -> Array Role
+sorted = sortOn getSortOrder
