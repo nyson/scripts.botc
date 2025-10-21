@@ -4,13 +4,12 @@ import Prelude
 
 import Data.Array (concatMap, groupBy)
 import Data.Array.NonEmpty (toArray)
-import Data.Maybe (Maybe)
-import MyPrelude (fillWithNothing, segmented)
+import MyPrelude (segmented)
 import OfficialRoles as OfficialRoles
 import Role (Role)
 import SortOrder (sorted)
 
-type RoleGrid = Array(Array (Maybe Role))
+type RoleGrid = Array (Array Role)
 
 type RoleBook = Array RoleGrid
 
@@ -21,8 +20,7 @@ roleBook =
       teamGrouping a b = a.team == b.team 
       rolesByCategory :: Array (Array Role)
       rolesByCategory = map toArray $ groupBy teamGrouping roleset
-      rowPages :: Array Role -> Array (Array (Array (Maybe Role)))
+      rowPages :: Array Role -> Array (Array (Array Role))
       rowPages rs = map (segmented 3)
-        $ map (fillWithNothing 12) 
         $ segmented 12 rs
   in concatMap rowPages rolesByCategory

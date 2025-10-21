@@ -14,7 +14,7 @@ import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
-import MyPrelude (center, joinString, justs, lpad, rep, segmented)
+import MyPrelude (center, joinString, lpad, rep, segmented)
 import OfficialRoles as OfficialRoles
 import Render (render)
 import Role (Role)
@@ -47,7 +47,7 @@ printPage :: Int -> RoleGrid -> Effect Unit
 printPage i page = do
   let roles = concat page
       saoAT = (\(SortOrder _ at _ _) -> at) <<< getSortOrder
-      sorts = nub $ map (\r -> Tuple r.team (saoAT r)) (justs roles)
+      sorts = nub $ map (\r -> Tuple r.team (saoAT r)) roles
 
   -- Header
   log (joinString 
@@ -66,5 +66,5 @@ printPage i page = do
   log ""
 
   where 
-    showRow :: Array (Maybe Role) -> String
-    showRow = joinString <<< map (\r -> lpad 18 r.name) <<< justs
+    showRow :: Array Role -> String
+    showRow = joinString <<< map (\r -> lpad 18 r.name)
