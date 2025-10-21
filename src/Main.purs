@@ -1,63 +1,88 @@
 module Main
+  ( main
+  , renderBook
+  )
   where
 
-import Prelude 
-import MyPrelude (center, joinString, lpad, rep, segmented)
+import Prelude
 
-import Data.Array (concat, nub, range, zip)
-import Data.Foldable (sequence_)
-import Data.Tuple (Tuple(..))
+import Concur.Core (Widget)
+import Concur.React (HTML)
+import Concur.React.DOM as D
+import Concur.React.Props (className)
+import Concur.React.Props as P
+import Concur.React.Run (runWidgetInDom)
+import Data.Array (concat, drop, head, last, range, take, zip)
+import Data.Maybe (Maybe(..), fromJust)
+import Data.Tuple (Tuple(..), uncurry)
 import Effect (Effect)
 import Effect.Console (log)
-import Role (Role, allroles)
-import SortOrder (SortOrder(..), getSortOrder, sorted)
+import MyPrelude (both, justs)
+import Partial.Unsafe (unsafePartial)
+import PrettyPrint (pretty)
+import Role (Role)
+import RoleBook (RoleGrid, roleBook)
+import SortOrder (equalAbilitySortOrder, getSortOrder)
 
-
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
-  log "All roles!"
-  let segRoles = segmented 12 (sorted allroles)
-  sequence_ $ map printList (zip (range 1 1000) segRoles)
+    log "starting..."
+    runWidgetInDom "main" 
+        $ renderBook
 
-printList :: Tuple Int (Array Role) -> Effect Unit
-printList (Tuple i rs) = do 
-  log $ "Page " <> show i
-  sequence_ $ map (log <<< ppRole) rs
-  log ""
-  where ppRole r = lpad 18 r.name 
-                <> lpad 12 (show r.team) 
-                <> show (getSortOrder r)
 
-printBook :: Effect Unit
-printBook = do
-  log "All pages!"
-  let rowPages :: Array (Array (Array Role))
-      rowPages = map (segmented 3)
-        $ segmented 12 (sorted allroles)
-  
-  sequence_ $ map printPage (zip (range 1 1000) rowPages)
+renderBook :: forall a. Widget HTML a
+renderBook = do
+    let ps = zip (range 1 1000) roleBook
+    let ps' = map (uncurry renderPage) ps
+    D.div' $ 
+        -- [ D.text "HEJ!"
+        -- , D.p' [D.text $ "Pages: " <> show (length ps)]
+        -- ] 
+        [ D.div
+            [className "a4border"] 
+            (take 8 ps' )
+        , D.div
+            [className "a4border"] 
+            (drop 8 ps')]
 
-  where 
-    showRow :: Array Role -> String
-    showRow = joinString <<< map (\r -> lpad 18 r.name) 
-    printPage :: Tuple Int (Array (Array Role)) -> Effect Unit
-    printPage (Tuple i page) = do
-      let roles = concat page
-          saoAT = (\(SortOrder _ at _ _) -> at) <<< getSortOrder
-          sorts = nub $ map (\r -> Tuple r.team (saoAT r)) roles
-      
-      -- Header
-      log (joinString 
-        [ rep 22 '-'
-        , center 10 ("Page " <> show i)
-        , rep 22 '-' 
-        ]) 
-      
-      -- Matching sort keys
-      log "Sort Matches per team: "
-      sequence_ $ flip map sorts $ \(Tuple t at) -> do
-        log ("\t" <> lpad 12 (show t) <> show at) 
+    -- traverse (uncurry renderPage) (zip (range 1 1000) roleBook)
+    
+renderPage :: Int -> RoleGrid -> forall a. Widget HTML a
+renderPage page grid = D.div
+    [ className "roleGrid"] 
+    [ D.div [className "pageInfo"]
+        [ D.h2' [D.text $ show page] 
+        , D.h3 [className "roleInfo"]
+            roleInfo
+        ]        
+    , D.div [className "roles"]
+        (map renderRow grid) 
+    ]
+    where
+        roles = justs $ concat grid
+        (Tuple f l) = both (unsafePartial fromJust)
+            $ Tuple (head roles) (last roles)
+        saoAbilityText :: Role -> String
+        saoAbilityText r = pretty $ getSortOrder r
+        roleInfo | equalAbilitySortOrder f l
+            = [ D.text $ saoAbilityText f
+              , D.text "..."]
+        roleInfo 
+            = [ D.text $ saoAbilityText f
+              , D.br'
+              , D.text $ "... " <> saoAbilityText l
+              ]
 
-      -- Roles
-      sequence_ $ map (log <<< showRow) page
-      log ""
+renderRow :: Array (Maybe Role) -> forall a. Widget HTML a
+renderRow roles = D.div 
+    [className "roleRow"] 
+    (map renderRole roles)
+    
+renderRole :: Maybe Role -> forall a. Widget HTML a
+renderRole (Just r) = D.div
+    [ className "role"]
+    [ D.img [ P.src ("img/Icon_" <> r.id <> ".png") ]
+    , D.h3' [D.text r.name]
+    ]
+renderRole Nothing = D.div [className "role"] []

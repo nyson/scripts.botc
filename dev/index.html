@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            Concur PureScript Examples
+        </title>
+        <style>
+            @media print
+            {    
+                .noprint, .noprint *
+                {
+                    display: none !important;
+                }
+
+                .roleGrid {
+                    break-inside: avoid;
+                    border: 0px !important;
+                }
+            }
+
+            .a4border {
+                box-sizing: border-box;
+                /* /* height: 8.5in; */
+                width: 11in;
+                /* border: 1px dashed lime; */
+            }
+            .roleGrid {
+                border: 1px solid;
+                box-sizing: border-box;
+                display: block;
+                float: left;
+                height: 315px;
+                width: 230px;
+                margin-top: 10px;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+
+            .roleGrid h2 {
+                margin: 0px 5px;
+                float: left;
+                border-right: 1px solid;
+                padding-right: 10px;
+            }
+
+            .pageInfo {
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 1px solid;
+            }
+            .roleGrid h3.roleInfo {
+                margin: 5px 20px 0 0;
+                font-size: 0.6rem;
+            }
+            .roles {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .roleRow {
+                display: flex;
+                justify-content: space-around;
+            }
+            .role {
+                display: flex;
+                flex-direction: column;
+                margin: 0px;
+                padding: 0px;
+                width: 75px;
+                text-align: center;
+            }
+
+            .role img {
+                height: 75px;
+                width: 75px;
+                margin: 0px;
+                margin-top: -10px;
+                padding:0px;
+            }
+
+            .role h3 {
+                padding: 0px;
+                margin: 0;
+                height: 22px;
+                margin-top: -15px;  
+                font-size: 0.6rem;
+                text-wrap-mode:wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="noprint">Concur PureScript Examples</h1>
+        <div id="main"></div>
+        <script src="./index.js" type="module"></script>
+    </body>
+</html>

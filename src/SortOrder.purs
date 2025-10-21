@@ -1,16 +1,17 @@
 module SortOrder
-  ( SortOrder(..)
-  , AbilityType(..)
+  ( AbilityLength(..)
   , AbilityText(..)
+  , AbilityType
+  , Alignment(..)
+  , Condition(..)
   , NameLength(..)
-  , AbilityLength(..)
+  , Object(..)
   , Phase(..)
   , Verb(..)
-  , Condition(..)
-  , Object(..)
-  , Alignment(..)
-  , sorted
+  , SortOrder(..)
+  , equalAbilitySortOrder
   , getSortOrder
+  , sorted
   )
   where
 
@@ -22,6 +23,7 @@ import Data.String as Str
 import Parsing (Parser, runParser)
 import Parsing.Combinators (choice)
 import Parsing.String (string)
+import PrettyPrint (class PrettyPrint)
 import Role (CharacterType(..), Role)
 
 data Alignment = Good | Evil
@@ -128,14 +130,21 @@ derive instance ordAbilityLength :: Ord AbilityLength
 instance showAbilityLength :: Show AbilityLength where
   show (AbilityLength l) = "AbilityLength " <> show l
 
-data SortOrder = SortOrder CharacterType AbilityType AbilityLength NameLength
-
+data SortOrder = SortOrder 
+  CharacterType
+  AbilityType 
+  AbilityLength 
+  NameLength
 derive instance eqSortOrder :: Eq SortOrder
 derive instance ordSortOrder :: Ord SortOrder
 
 instance showSortOrder :: Show SortOrder where
-  show (SortOrder team abilityType (AbilityLength alen) (NameLength nlen)) 
-    = "SortOrder " <> show team <> " [" <> show abilityType <> "] (" <> show alen <> "," <> show nlen <> ")"
+  show (SortOrder team ability abilityLength nameLength) = "SortOrder " 
+    <> show team 
+    <> " [" <> show ability 
+    <> "] (" <> show abilityLength 
+    <> "," <> show nameLength
+    <> ")"
 
 data AbilityType
     = StartKnowing
@@ -167,13 +176,23 @@ instance showAbilityType :: Show AbilityType where
   show (References o) = "References " <> show o
   show (Uncategorized) = "Uncategorized"
 
+equalAbilitySortOrder 
+  :: forall r. {name :: String, ability :: String, team :: CharacterType | r} 
+    -> {name :: String, ability :: String, team :: CharacterType | r} 
+    -> Boolean
+equalAbilitySortOrder l r 
+  = let (SortOrder _ lAb _ _) = getSortOrder l
+        (SortOrder _ rAb _ _) = getSortOrder r
+    in lAb == rAb
+     
+
 getSortOrder :: forall r. {name :: String, ability :: String, team :: CharacterType | r} -> SortOrder
 getSortOrder {name, ability, team}
   = SortOrder
-    team
-    (parsedAbilityType ability)
-    (AbilityLength $ Str.length ability)
-    (NameLength $ Str.length name)
+      team
+      (parsedAbilityType ability)
+      (AbilityLength $ Str.length ability)
+      (NameLength $ Str.length name)
   where
     parsedAbilityType :: String -> AbilityType
     parsedAbilityType s = case runParser s parseAbilityType of
@@ -204,7 +223,7 @@ parseEach = string "Each " *> (Each <$> parsePhase)
 
 parseOncePerGame :: Parser String AbilityType
 parseOncePerGame = prefixP *> (OncePerGame <$> parsePhase) 
-  where prefixP = string "Once per game " *> choice (map string ["at ", "during "]) 
+  where prefixP = string "Once per game, " *> choice (map string ["at ", "during "]) 
 
 parseOnYour :: Parser String AbilityType
 parseOnYour = string "On your " *> (OnYour <$> parsePhase)
@@ -303,3 +322,19 @@ newtype AbilityText = AbilityText String
 
 sorted :: Array Role -> Array Role
 sorted = sortOn getSortOrder
+
+instance PrettyPrint SortOrder where
+  pretty (SortOrder _ ab _ _) = case ab of
+    StartKnowing -> "You start knowing"
+    Each (AtNight) -> "Each night"
+    Each (Day) -> "Each day"
+    OncePerGame (Day) -> "Once per game, at day"
+    OncePerGame AtNightStar -> "Once per game, at night*"
+    If TheDemonKills -> "If the Demon kills"
+    If ConditionYouAny -> "If you"
+    If ConditionAny -> "If"
+    When YouLearnThatYouDied -> "When you learn that you died"
+    OnYour FirstNight -> "On your first night"
+    Uncategorized -> "Uncategorized"
+    Each AtNightStar -> "Each night*"
+    _ -> ""
