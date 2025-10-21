@@ -12,8 +12,8 @@
   "scripts": {
     "build": "spago build",
     "test": "spago test",
-    "start": "parcel dev/index.html dev/img/*.png --open",
-    "watch": "parcel watch dev/index.html dev/img/*.png",
+    "start": "parcel dev/index.html dev/assets/*.css dev/assets/img/*.png --open",
+    "watch": "parcel watch dev/index.html dev/assets/*.css dev/assets/img/*.png --open",
     "examples": "cd examples && spago build",
     "examples-start": "cd examples && parcel dev/index.html --open",
     "examples-watch": "cd examples && parcel watch dev/index.html",
