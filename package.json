@@ -12,8 +12,8 @@
   "scripts": {
     "build": "spago build",
     "test": "spago test",
-    "start": "parcel dev/index.html --open",
-    "watch": "parcel watch dev/index.html",
+    "start": "parcel dev/index.html dev/img/*.png --open",
+    "watch": "parcel watch dev/index.html dev/img/*.png",
     "examples": "cd examples && spago build",
     "examples-start": "cd examples && parcel dev/index.html --open",
     "examples-watch": "cd examples && parcel watch dev/index.html",
@@ -21,12 +21,14 @@
     "examples-docs": "cd examples && npm run examples-prod && cp docs/logo.png dist && cp docs/Purescript-Concur-Performance.png dist && rimraf docs && mv dist docs"
   },
   "dependencies": {
+    "parcel-plugin-static-files-copy": "^1.2.4",
     "react": ">=17 <18",
     "react-dom": ">=17 <18"
   },
   "devDependencies": {
-    "esbuild": "^0.21.1",
-    "parcel": "^2.12.0",
+    "@parcel/resolver-glob": "^2.16.0",
+    "esbuild": "^0.25.11",
+    "parcel": "^2.16.0",
     "process": "^0.11.10",
     "rimraf": "^5.0.5"
   }
