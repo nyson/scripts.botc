@@ -1,4 +1,4 @@
-module Pages.Pamflets
+module Pages.Pamphlets
   ( page
   )
   where
@@ -18,7 +18,8 @@ page roles = D.div'
     ]
 
 renderRole :: forall a. Role -> Widget HTML a
-renderRole role = D.div' 
+renderRole role = D.div
+    [ P.className "rolePamphlet" ]
     [ D.h3' [D.text role.name ]
     , D.img [P.src ("assets/img/Icon_" <> role.id <> ".png")]
     , D.p' [D.text role.edition]
