@@ -9,6 +9,10 @@
         break-inside: avoid;
         border: 0px !important;
     }
+
+    .rolePamphlet {
+        break-inside: avoid;
+    }
 }
 
 .a4border {
@@ -28,24 +32,24 @@
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
-}
 
-.roleGrid h2 {
-    margin: 0px 5px;
-    float: left;
-    border-right: 1px solid;
-    padding-right: 10px;
+    h2 {
+        margin: 0px 5px;
+        float: left;
+        border-right: 1px solid;
+        padding-right: 10px;
+
+    }
+    h3.roleInfo {
+        margin: 5px 20px 0 0;
+        font-size: 0.6rem;
+    }
 }
 
 .pageInfo {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid;
-}
-
-.roleGrid h3.roleInfo {
-    margin: 5px 20px 0 0;
-    font-size: 0.6rem;
 }
 
 .roles {
@@ -64,8 +68,18 @@
     flex-direction: column;
     margin: 0px;
     padding: 0px;
+    box-sizing: border-box;
     width: 75px;
     text-align: center;
+}
+
+.role.deselected {
+    border-radius: 5px;
+    filter: blur(7px) brightness(75%);
+
+    h3 {
+        font-size: 0;
+    }
 }
 
 .role img {
@@ -87,4 +101,25 @@
 
 .selected {
     font-weight: bold;
+}
+
+.rolePamphlets {
+    display: flex;
+    flex-wrap: wrap;
+    height: 29.7cm;
+    width: 21cm;
+}
+
+.rolePamphlet {
+    flex: 50%;
+    overflow: scroll;
+    height: 5.4in;
+    width: 4.1in;
+    border: 1px solid #000;
+    box-sizing: border-box;
+}
+
+.rolePamphlet img {
+    width: 150px;
+    height: 150px;
 }

@@ -1,18 +1,22 @@
 module Role
-  ( Role(..)
-  , CharacterType(..)
+  ( CharacterType(..)
+  , Role(..)
+  , RoleId
+  , value
   )
   where
 
 import Prelude
 
+import Data.Hashable (class Hashable, hash)
 import Data.Maybe (Maybe)
 import Data.String as Str
 import Foreign (ForeignError(..), fail)
 import Yoga.JSON (class ReadForeign, class WriteForeign, readImpl, writeImpl)
 
+
 type Role = {
-    id :: String,
+    id :: RoleId,
     name :: String,
     edition :: String,
     team :: CharacterType,
@@ -23,6 +27,20 @@ type Role = {
     setup :: Boolean,
     ability :: String
 }
+
+newtype RoleId = RoleId String
+
+derive instance eqRoleId :: Eq RoleId
+instance Hashable RoleId where
+  hash (RoleId id) = hash id
+
+value :: RoleId -> String
+value (RoleId s) = s
+
+instance ReadForeign RoleId where
+  readImpl json = do
+    str :: String <- readImpl json
+    pure $ RoleId str
 
 data CharacterType = Townsfolk | Outsider | Minion | Demon | Traveller
 

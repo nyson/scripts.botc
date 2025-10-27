@@ -1,6 +1,5 @@
 module Pages.Head
-  ( PageState
-  , page
+  ( page
   , startingPage
   )
   where
@@ -11,36 +10,45 @@ import Concur.Core (Widget)
 import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
-import Data.Array (concat, filter, concatMap)
+import Data.Array (filter)
+import Data.HashMap as HM
+import Data.Maybe (Maybe(..))
+import OfficialRoles as OfficialRoles
 import Pages.Pamphlets as Pamphlets
 import Pages.RoleBook as RoleBookPage
-import RoleBook as Roles
-
-data PageState = Head | RoleBook | Pamphlets
-
-derive instance eqPageState :: Eq PageState
+import Pages.State (PageState(..), State)
+import RoleBook as RoleBook
 
 
-startingPage :: PageState
-startingPage = Pamphlets
+startingPage :: State
+startingPage = {
+    page: Pamphlets,
+    roleBook: RoleBook.roleBook,
+    selectedRoles: Just $ HM.fromArrayBy 
+        (\r -> r.id)
+        (\r -> r) 
+        $ filter 
+            (\r -> r.edition == "bmr") 
+            OfficialRoles.roles
+}
 
-page :: forall a. PageState -> Widget HTML a
+
+page :: forall a. State -> Widget HTML a
 page p = do
     newState <- D.div'  
-        [ header p
+        [ (\newPage -> p {page = newPage}) <$> header p.page
         , D.div' 
-            [ case p of
-                RoleBook -> RoleBookPage.renderBook Roles.roleBook []
-                Pamphlets -> Pamphlets.page 
-                    (filter (\r -> r.edition == "bmr") 
-                        $ concatMap concat Roles.roleBook)
+            [ case p.page of
+                RoleBook -> RoleBookPage.renderBook p.roleBook p.selectedRoles
+                Pamphlets -> Pamphlets.page p.selectedRoles
                 Head -> D.h2' [D.text "Welcome!"]
             ]
         ]
     page newState
 
 header :: PageState -> Widget HTML PageState
-header p = D.ul'
+header p = D.ul
+    [ P.className "noprint" ]
     [ option p Head "Head"
     , option p RoleBook "Role Book"
     , option p Pamphlets "Pamphlets"
