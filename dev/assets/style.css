@@ -5,9 +5,13 @@
         display: none !important;
     }
 
+    .a4border {
+        border: 0px !important;
+        background-color: #aaa !important;
+    }
+
     .roleGrid {
         break-inside: avoid;
-        border: 0px !important;
     }
 
     .rolePamphlet {
@@ -17,9 +21,13 @@
 
 .a4border {
     box-sizing: border-box;
-    height: 8.5in;
-    border: 1px dashed lime;
     width: 11in;
+    break-after: a4border;
+
+}
+
+.selected {
+    font-weight: bold;
 }
 
 .roleGrid {
@@ -27,7 +35,7 @@
     box-sizing: border-box;
     display: block;
     float: left;
-    height: 315px;
+    height: 324px;
     width: 230px;
     margin-top: 10px;
     margin-left: 10px;
@@ -40,6 +48,7 @@
         padding-right: 10px;
 
     }
+
     h3.roleInfo {
         margin: 5px 20px 0 0;
         font-size: 0.6rem;
@@ -56,51 +65,51 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-}
 
-.roleRow {
-    display: flex;
-    justify-content: space-around;
-}
-
-.role {
-    display: flex;
-    flex-direction: column;
-    margin: 0px;
-    padding: 0px;
-    box-sizing: border-box;
-    width: 75px;
-    text-align: center;
-}
-
-.role.deselected {
-    border-radius: 5px;
-    filter: blur(7px) brightness(75%);
-
-    h3 {
-        font-size: 0;
+    .roleRow {
+        display: flex;
+        justify-content: space-around;
     }
-}
 
-.role img {
-    height: 75px;
-    width: 75px;
-    margin: 0px;
-    margin-top: -10px;
-    padding: 0px;
-}
+    .role {
+        display: flex;
+        flex-direction: column;
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        width: 75px;
+        text-align: center;
 
-.role h3 {
-    padding: 0px;
-    margin: 0;
-    height: 22px;
-    margin-top: -15px;
-    font-size: 0.6rem;
-    text-wrap-mode: wrap;
-}
 
-.selected {
-    font-weight: bold;
+
+
+        .deselected {
+            border-radius: 5px;
+            filter: blur(7px) brightness(75%);
+
+            h3 {
+                font-size: 0;
+            }
+        }
+
+        img {
+            height: 75px;
+            width: 75px;
+            margin: 0px;
+            margin-top: -10px;
+            padding: 0px;
+        }
+
+        h3 {
+            padding: 0px;
+            margin: 0;
+            height: 22px;
+            margin-top: -15px;
+            font-size: 0.6rem;
+            text-wrap-mode: wrap;
+        }
+    }
+
 }
 
 .rolePamphlets {
@@ -108,18 +117,25 @@
     flex-wrap: wrap;
     height: 29.7cm;
     width: 21cm;
+    padding: 0px 25px;
 }
 
 .rolePamphlet {
     flex: 50%;
-    overflow: scroll;
-    height: 5.4in;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 5.8in;
     width: 4.1in;
     border: 1px solid #000;
     box-sizing: border-box;
-}
+    justify-content: start;
+    align-items: center;
+    background-image: url('./img/bmr_filtered.png');
+    backdrop-filter: brightness(90%);
 
-.rolePamphlet img {
-    width: 150px;
-    height: 150px;
+    img {
+        width: 150px;
+        height: 150px;
+    }
 }

@@ -16,5 +16,6 @@ type RoleFilter = Maybe (HashMap RoleId Role)
 type State = {
     page :: PageState,
     roleBook :: RoleBook,
+    edition :: Maybe String,
     selectedRoles :: RoleFilter
 }

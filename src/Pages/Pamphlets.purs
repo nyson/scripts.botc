@@ -26,15 +26,15 @@ page (Just roles) = D.div
 renderRole :: forall a. Role -> Widget HTML a
 renderRole role = D.div
     [ P.className "rolePamphlet" ]
-    [ D.h3' [D.text role.name ]
-    , D.img [P.src ("assets/img/Icon_" <> value role.id <> ".png")]
+    [ D.img [P.src ("assets/img/Icon_" <> value role.id <> ".png")]
+    , D.h3' [D.text role.name ]
     , D.p' [D.text role.edition]
     , D.p' [D.text $ show role.team]
     , D.p' [D.text role.ability ]
-    , D.p' [D.text $ 
-        if role.setup 
-        then "Affects setup"
-        else "Doesn't affect setup"]
-    , D.p' [D.text role.firstNightReminder ]
-    , D.p' [D.text role.otherNightReminder ]
+    -- , D.p' [D.text $ 
+    --     if role.setup 
+    --     then "Affects setup"
+    --     else "Doesn't affect setup"]
+    -- , D.p' [D.text role.firstNightReminder ]
+    -- , D.p' [D.text role.otherNightReminder ]
     ]
